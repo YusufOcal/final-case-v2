@@ -1,9 +1,26 @@
 # v7: advanced scoring & performance improvements
 import io, math, random, numpy as np, pandas as pd, streamlit as st
 import os, tempfile, urllib.request, hashlib
+import qrcode
 
-st.set_page_config(page_title="Job Recommender v7", layout="wide")
-st.title("🏢📍 İş İlanı Önerici – v7")
+st.set_page_config(page_title="İş Piyasası Trend Analizi", layout="wide")
+st.title("Web Scraping ve Makine Öğrenmesi ile İş Piyasası Trendlerinin Analizi")
+
+# Deployed application URL for QR code
+APP_URL = "https://final-case-v2.streamlit.app"  # replace if differs
+
+# ----- Tabs -----
+tab_jobs, tab_qr = st.tabs(["İş İlanları", "QR Kod"])
+
+# QR tab content
+with tab_qr:
+    st.header("📱 Mobil Erişim")
+    qr_img = qrcode.make(APP_URL)
+    buf_qr = io.BytesIO()
+    qr_img.save(buf_qr, format="PNG")
+    buf_qr.seek(0)
+    st.image(buf_qr.getvalue(), width=400, caption=APP_URL)
+    st.text(APP_URL)
 
 # ---------- Mobile responsiveness (CSS) ----------
 st.markdown(
@@ -173,27 +190,28 @@ sub["score"] = (w1*sub["prob"] + w2*sub["match_ratio"] + w3*sub["rec_exp"]) * su
 sub=sub[sub["match_ratio"]*100>=min_match]
 sub=sub.sort_values("score",ascending=False).drop_duplicates("title").head(TOP_K)
 
-# display
-for _,r in sub.iterrows():
-    pct=int(r['match_ratio']*100)
-    color="green" if pct>70 else "orange" if pct>40 else "red"
-    st.markdown(f"### {r['title']}")
-    st.markdown(
-        f"<span class='match-score' style='color:{color};'>Eşleşme: {pct}%</span>",
-        unsafe_allow_html=True,
-    )
-    st.progress(float(r['match_ratio']))
+# display within jobs tab
+with tab_jobs:
+    for _,r in sub.iterrows():
+        pct=int(r['match_ratio']*100)
+        color="green" if pct>70 else "orange" if pct>40 else "red"
+        st.markdown(f"### {r['title']}")
+        st.markdown(
+            f"<span class='match-score' style='color:{color};'>Eşleşme: {pct}%</span>",
+            unsafe_allow_html=True,
+        )
+        st.progress(float(r['match_ratio']))
 
-csv=sub.to_csv(index=False).encode('utf-8')
-# Excel download
-excel_buffer = io.BytesIO()
-sub.to_excel(excel_buffer, index=False)
-excel_buffer.seek(0)
+    csv=sub.to_csv(index=False).encode('utf-8')
+    # Excel download
+    excel_buffer = io.BytesIO()
+    sub.to_excel(excel_buffer, index=False)
+    excel_buffer.seek(0)
 
-st.download_button("CSV",csv,"jobs_v7.csv")
-st.download_button(
-    label="Excel",
-    data=excel_buffer,
-    file_name="jobs_v7.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-) 
+    st.download_button("CSV",csv,"jobs_v7.csv")
+    st.download_button(
+        label="Excel",
+        data=excel_buffer,
+        file_name="jobs_v7.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ) 
