@@ -185,4 +185,15 @@ for _,r in sub.iterrows():
     st.progress(float(r['match_ratio']))
 
 csv=sub.to_csv(index=False).encode('utf-8')
-st.download_button("CSV",csv,"jobs_v7.csv") 
+# Excel download
+excel_buffer = io.BytesIO()
+sub.to_excel(excel_buffer, index=False)
+excel_buffer.seek(0)
+
+st.download_button("CSV",csv,"jobs_v7.csv")
+st.download_button(
+    label="Excel",
+    data=excel_buffer,
+    file_name="jobs_v7.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+) 
