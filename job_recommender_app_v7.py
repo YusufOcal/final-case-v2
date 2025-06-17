@@ -7,7 +7,7 @@ st.set_page_config(page_title="İş Piyasası Trend Analizi", layout="wide")
 st.title("Web Scraping ve Makine Öğrenmesi ile İş Piyasası Trendlerinin Analizi")
 
 # Deployed application URL for QR code
-APP_URL = "https://final-case-v2.streamlit.app"  # replace if differs
+APP_URL = "https://final-case-v2-thgy4uxzagtzd7gtjrb3cs.streamlit.app/"
 
 # ----- Tabs -----
 tab_jobs, tab_qr = st.tabs(["İş İlanları", "QR Kod"])
